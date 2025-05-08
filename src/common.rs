@@ -25,3 +25,13 @@ pub enum Theme {
     Dark,
     Custom(&'static str),
 }
+
+#[derive(Clone, PartialEq, Default)]
+pub enum Direction {
+    #[default]
+    LeftToRight,
+    RightToLeft,
+    TopToBottom,
+    BottomToTop,
+    CustomAngle(i64),
+}

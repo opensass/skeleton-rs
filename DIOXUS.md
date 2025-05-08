@@ -1,46 +1,44 @@
-# Y Skeleton RS Yew Usage
+# 🧬 Skeleton RS Dioxus Usage
 
 Adding Skeleton RS to your project is simple:
 
-1. Make sure your project is set up with **Yew**. Follow their [Getting Started Guide](https://yew.rs/docs/getting-started/introduction) for setup instructions.
+1. Make sure your project is set up with **Dioxus**. Refer to the [Dioxus Getting Started Guide](https://dioxuslabs.com/learn/0.6/getting_started) for setup instructions.
 
-1. Add the Skeleton RS component to your dependencies by including it in your `Cargo.toml` file:
+1. Add the **skeleton-rs** library to your dependencies by including it in your `Cargo.toml` file:
 
    ```sh
-   cargo add skeleton-rs --features=yew
+   cargo add skeleton-rs --features=dio
    ```
 
-1. Import the `Skeleton` component into your Yew component and start using it in your app.
+1. Import the `Skeleton` component into your Dioxus application.
 
 ## 🛠️ Usage
 
-Incorporating Skeleton RS into your Yew application is easy. Follow these steps:
+Incorporating Skeleton RS into your **Dioxus** application is straightforward. Follow these steps:
 
-1. Import the `Skeleton` component into your Yew project:
+1. Import the `Skeleton` component into your Dioxus project:
 
    ```rust
-   use yew::prelude::*;
-   use skeleton_rs::yew::Skeleton;
-   use skeleton_rs::Variant;
+   use dioxus::prelude::*;
+   use skeleton_rs::dioxus::Skeleton;
+   use skeleton_rs::{Variant, Animation, Direction, Theme};
    ```
 
-1. Use the `Skeleton` component within your Yew application:
+1. Use the `Skeleton` component within your Dioxus application:
 
    ```rust
-   use yew::prelude::*;
-   use skeleton_rs::yew::Skeleton;
+   use dioxus::prelude::*;
+   use skeleton_rs::dioxus::Skeleton;
    use skeleton_rs::Variant;
 
-
-   #[function_component(App)]
-   pub fn app() -> Html {
-       html! {
-           <Skeleton
-               variant={Variant::Text}
-               width="100%"
-               height="1.2em"
-               animate_on_visible={true}
-           />
+   #[component]
+   fn App() -> Element {
+       rsx! {
+           Skeleton {
+               variant: Variant::Text,
+               width: "100%",
+               height: "1.2em",
+           }
        }
    }
    ```
@@ -57,7 +55,7 @@ Incorporating Skeleton RS into your Yew application is easy. Follow these steps:
 | `delay_ms`   | `u32`       | Delay before showing the skeleton in milliseconds.                     | `0`           |
 | `infer_size` | `bool`      | Infers width/height from child content if true.                        | `false`       |
 | `responsive` | `bool`      | Enables scaling for responsive layouts.                                | `false`       |
-| `children`   | `Html`      | Content to wrap in skeleton loading.                                   | `None`        |
+| `children`   | `Element`   | Content to wrap in skeleton loading.                                   | `None`        |
 
 ### 🎨 Styling Props
 
@@ -89,17 +87,11 @@ Incorporating Skeleton RS into your Yew application is easy. Follow these steps:
 | `max_height` | `Option<&str>` | Max height of the skeleton. | `None`  |
 | `min_height` | `Option<&str>` | Min height of the skeleton. | `None`  |
 
-### 🧠 DOM Utility
-
-| Property   | Type      | Description                                                    | Default |
-| ---------- | --------- | -------------------------------------------------------------- | ------- |
-| `node_ref` | `NodeRef` | DOM reference used internally (e.g., for visibility tracking). | Default |
-
 ## 💡 Notes
 
-- The `Skeleton` component is primarily designed for loading states and placeholder UI.
-- `IntersectionObserver` is used when `animate_on_visible` is enabled to improve performance.
-- You can control the component via the `show` prop or allow it to handle visibility with internal state.
-- Use `infer_size` with children when you want the skeleton to match their dimensions.
-- For better performance, delay the appearance of skeletons using `delay_ms` to avoid flicker.
-- You can use `custom_style` and `class` to style it further as needed.
+- The `Skeleton` component is ideal for loading states and placeholder UIs.
+- When `animate_on_visible` is enabled, `IntersectionObserver` is used to optimize performance.
+- Use the `show` prop to manually toggle visibility or let the component manage it.
+- Enable `infer_size` to make the skeleton size itself based on wrapped children.
+- For improved UX, use `delay_ms` to avoid flashing placeholders for fast-loading content.
+- Customize styles with `custom_style` and regular class/style props.

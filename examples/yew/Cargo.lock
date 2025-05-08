@@ -936,11 +936,9 @@ dependencies = [
 
 [[package]]
 name = "skeleton-rs"
-version = "0.0.0"
+version = "0.0.1"
 dependencies = [
  "gloo-timers 0.3.0",
- "serde_json",
- "wasm-bindgen-futures",
  "web-sys",
  "yew",
 ]
