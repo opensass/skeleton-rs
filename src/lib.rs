@@ -16,4 +16,4 @@ pub mod dioxus;
 #[cfg(feature = "lep")]
 pub mod leptos;
 
-pub use common::{Animation, Theme, Variant};
+pub use common::{Animation, Direction, Theme, Variant};

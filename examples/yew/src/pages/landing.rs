@@ -1,7 +1,7 @@
 use gloo_net::http::Request;
 use serde::Deserialize;
 use skeleton_rs::yew::{Skeleton, SkeletonGroup};
-use skeleton_rs::{Animation, Theme, Variant};
+use skeleton_rs::{Animation, Theme, Variant, Direction};
 use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
 
@@ -42,13 +42,12 @@ pub fn example3() -> Html {
 pub fn example4() -> Html {
     html! {
         <Skeleton
-            variant={Variant::Button}
-            width="150px"
-            height="40px"
-            animate_on_hover=true
-            animate_on_active=true
-            animation={Animation::Pulse}
-            theme={Theme::Custom("#0099ff")}
+            variant={Variant::Text}
+            width="100%"
+            height="1.5em"
+            border_radius="0"
+            animation={Animation::Wave}
+            direction={Direction::TopToBottom}
             show=false
         />
     }
@@ -229,22 +228,21 @@ pub fn example3() -> Html {
         />
     }
 }"#),
-                            4 => ("Button Skeleton", html! { <Example4 /> }, r#"use yew::prelude::*;
+                            4 => ("Custom Direction (Right To Left)", html! { <Example4 /> }, r#"use yew::prelude::*;
 use skeleton_rs::yew::Skeleton;
-use skeleton_rs::{Animation, Theme, Variant};
+use skeleton_rs::{Animation, Direction, Variant};
 
 #[function_component(Example4)]
 pub fn example4() -> Html {
     html! {
         <Skeleton
-            variant={Variant::Button}
-            width="150px"
-            height="40px"
-            animate_on_hover={true}
-            animate_on_active={true}
-            animation={Animation::Pulse}
-            theme={Theme::Custom("\#0099ff")}
-            show={false}
+            variant={Variant::Text}
+            width="100%"
+            height="1.5em"
+            border_radius="0"
+            animation={Animation::Wave}
+            direction={Direction::RightToLeft}
+            show=false
         />
     }
 }"#),

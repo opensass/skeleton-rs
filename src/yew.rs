@@ -1,6 +1,6 @@
 #![doc = include_str!("../YEW.md")]
 
-use crate::common::{Animation, Theme, Variant};
+use crate::common::{Animation, Direction, Theme, Variant};
 use gloo_timers::callback::Timeout;
 use web_sys::js_sys;
 use web_sys::wasm_bindgen::JsCast;
@@ -8,7 +8,6 @@ use web_sys::wasm_bindgen::prelude::*;
 use web_sys::window;
 use web_sys::{HtmlElement, IntersectionObserver, IntersectionObserverEntry};
 use yew::prelude::*;
-
 
 /// Properties for the `Skeleton` component.
 #[derive(Properties, PartialEq, Clone)]
@@ -32,6 +31,10 @@ pub struct SkeletonProps {
     /// Defaults to `Animation::Pulse`.
     #[prop_or_default]
     pub animation: Animation,
+
+    /// Direction of the animation direction and background color gradient.
+    #[prop_or_default]
+    pub direction: Direction,
 
     /// The theme of the skeleton appearance.
     ///
@@ -279,6 +282,7 @@ pub struct SkeletonProps {
 pub fn skeleton(props: &SkeletonProps) -> Html {
     let node_ref = use_node_ref();
     let visible = use_state(|| !props.show);
+    let direction = props.direction.clone();
 
     let props_clone = props.clone();
     let visible_clone = visible.clone();
@@ -347,13 +351,75 @@ pub fn skeleton(props: &SkeletonProps) -> Html {
         Variant::Button => "6px",
         Variant::Text | Variant::Image => props.border_radius,
     };
+    let (keyframes_name, wave_keyframes) = match direction {
+        Direction::LeftToRight => (
+            "skeleton-wave-ltr",
+            r#"
+            @keyframes skeleton-wave-ltr {
+                0%   { background-position: 200% 0; }
+                100% { background-position: -200% 0; }
+            }
+            "#,
+        ),
+        Direction::RightToLeft => (
+            "skeleton-wave-rtl",
+            r#"
+            @keyframes skeleton-wave-rtl {
+                0% { background-position: -200% 0; }
+                100% { background-position: 200% 0; }
+            }
+            "#,
+        ),
+        Direction::TopToBottom => (
+            "skeleton-wave-ttb",
+            r#"
+            @keyframes skeleton-wave-ttb {
+                0%   { background-position: 0 -200%; }
+                100% { background-position: 0 200%; }
+            }
+            "#,
+        ),
+        Direction::BottomToTop => (
+            "skeleton-wave-btt",
+            r#"
+            @keyframes skeleton-wave-btt {
+                0%   { background-position: 0 200%; }
+                100% { background-position: 0 -200%; }
+            }
+            "#,
+        ),
+        Direction::CustomAngle(_) => (
+            "skeleton-wave-custom",
+            r#"
+            @keyframes skeleton-wave-custom {
+                0%   { background-position: 200% 0; }
+                100% { background-position: -200% 0; }
+            }
+            "#,
+        ),
+    };
 
     let base_animation = match props.animation {
-        Animation::Pulse => "animation: skeleton-rs-pulse 1.5s ease-in-out infinite;",
+        Animation::Pulse => "animation: skeleton-rs-pulse 1.5s ease-in-out infinite;".to_string(),
+
         Animation::Wave => {
-            "background: linear-gradient(90deg, #e0e0e0 25%, #f5f5f5 50%, #e0e0e0 75%); background-size: 200% 100%; animation: skeleton-rs-wave 1.6s linear infinite;"
+            let angle = match direction {
+                Direction::LeftToRight => 90,
+                Direction::RightToLeft => 90,
+                Direction::TopToBottom => 90,
+                Direction::BottomToTop => 90,
+                Direction::CustomAngle(deg) => deg,
+            };
+
+            format!(
+                "background: linear-gradient({}deg, #e0e0e0 25%, #f5f5f5 50%, #e0e0e0 75%);
+                 background-size: 200% 100%;
+                 animation: {} 1.6s linear infinite;",
+                angle, keyframes_name
+            )
         }
-        Animation::None => "",
+
+        Animation::None => "".to_string(),
     };
 
     let mut style = String::new();
@@ -387,7 +453,7 @@ pub fn skeleton(props: &SkeletonProps) -> Html {
         style.push_str(&format!(" min-height: {min_h};"));
     }
 
-    style.push_str(base_animation);
+    style.push_str(&base_animation);
     style.push_str(props.custom_style);
 
     let mut class_names = String::from("skeleton-rs");
@@ -400,34 +466,38 @@ pub fn skeleton(props: &SkeletonProps) -> Html {
     if props.animate_on_active {
         class_names.push_str(" skeleton-active");
     }
-
     use_effect_with((), move |_| {
         if let Some(doc) = window().and_then(|w| w.document()) {
             if doc.get_element_by_id("skeleton-rs-style").is_none() {
                 let style_elem = doc.create_element("style").unwrap();
                 style_elem.set_id("skeleton-rs-style");
-                style_elem.set_inner_html(
+                let style_css = format!(
                     r#"
-                    @keyframes skeleton-rs-pulse {
-                        0% { opacity: 1; }
-                        50% { opacity: 0.4; }
-                        100% { opacity: 1; }
-                    }
-                    @keyframes skeleton-rs-wave {
-                        0% { background-position: -200% 0; }
-                        100% { background-position: 200% 0; }
-                    }
-                    .skeleton-hover:hover {
+                    @keyframes skeleton-rs-pulse {{
+                        0% {{ opacity: 1; }}
+                        25% {{ opacity: 0.7; }}
+                        50% {{ opacity: 0.4; }}
+                        75% {{ opacity: 0.7; }}
+                        100% {{ opacity: 1; }}
+                    }}
+
+                    {}
+
+                    .skeleton-hover:hover {{
                         filter: brightness(0.95);
-                    }
-                    .skeleton-focus:focus {
+                    }}
+
+                    .skeleton-focus:focus {{
                         outline: 2px solid #999;
-                    }
-                    .skeleton-active:active {
+                    }}
+
+                    .skeleton-active:active {{
                         transform: scale(0.98);
-                    }
-                "#,
+                    }}
+                    "#,
+                    wave_keyframes
                 );
+                style_elem.set_inner_html(&style_css);
                 if let Some(head) = doc.head() {
                     head.append_child(&style_elem).unwrap();
                 }
